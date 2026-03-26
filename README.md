@@ -32,7 +32,7 @@ The goal was to eliminate the 24-hour delay in sales reporting and provide **Imm
 ### 📷 System Preview
 
 **1. The Automation Engine (n8n Workflow)**
-![n8n Workflow](Documentation/Screenshot2026-03-27 000958.png)
+![n8n Workflow](Documentation/n8n_workflow.png)
 
 **2. Executive Insights (AI-Generated Report)**
 ![AI Email](Documentation/1.png)
