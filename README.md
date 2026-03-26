@@ -32,7 +32,7 @@ The goal was to eliminate the 24-hour delay in sales reporting and provide **Imm
 ### 📷 System Preview
 
 **1. The Automation Engine (n8n Workflow)**
-![n8n Workflow](Documentation/Screenshot 2026-03-27 000958.png)
+![n8n Workflow](Documentation/Screenshot2026-03-27 000958.png)
 
 **2. Executive Insights (AI-Generated Report)**
 ![AI Email](Documentation/1.png)
@@ -50,4 +50,4 @@ This repository is organized for easy replication:
 4. **📂 04_Sample_Data:** The raw CSV file used for testing the pipeline.
 
 ---
-*Developed by **Shehab El-Batanouny** | Data Engineer & BI Developer*
+*Developed by **Shehab El-Batanouny** | Data Analysis & BI Developer*
