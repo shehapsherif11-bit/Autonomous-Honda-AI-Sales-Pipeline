@@ -1,0 +1,329 @@
+{
+  "name": "Autonomous AI-Driven Sales Analytics Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            },
+            {}
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": "={{ [\"INBOX\"] }}",
+          "q": "has:attachment filename:csv subject:\"Honda Sales Data\""
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        144
+      ],
+      "id": "d3e67f00-94bd-4fa4-891a-4209b4cfdc4f",
+      "name": "Receive Sales Email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2gRzDbFZ7qoelupF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "=attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        144
+      ],
+      "id": "e31431f6-fca5-41a7-819a-4932159919e3",
+      "name": "Parse CSV Data"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "etl_process_logs",
+          "mode": "list",
+          "cachedResultName": "etl_process_logs"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "file_name",
+              "value": "={{ $('Receive Sales Email').item.json.headers.subject }}"
+            },
+            {
+              "column": "rows_processed",
+              "value": "={{ $items(\"Data Cleaning & Typing\").length }}"
+            },
+            {
+              "column": "status",
+              "value": "={{ $json.success }}"
+            },
+            {
+              "column": "process_date",
+              "value": "={{ $now }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1248,
+        144
+      ],
+      "id": "cf7aab5b-2844-43b9-b1fe-44e5e15b54eb",
+      "name": "Write Audit Log",
+      "credentials": {
+        "mySql": {
+          "id": "5QsgS2sKrZ8bw19M",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "sum",
+              "field": "On_Road_Price"
+            },
+            {
+              "field": "Order_ID"
+            }
+          ]
+        },
+        "options": {
+          "outputFormat": "separateItems"
+        }
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        416
+      ],
+      "id": "60c76c7b-c6b6-48af-b873-dcb2a1056a35",
+      "name": "Aggregate Daily Metrics"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "66f42919-d217-49c8-8271-4e3aa7d528a8",
+              "name": "Order_Date",
+              "value": "={{ \n  $json.Order_Date.replace(/\\//g, '-').toDateTime('d-M-yyyy').format('yyyy-MM-dd') \n}}",
+              "type": "string"
+            },
+            {
+              "id": "7fc62de4-5116-4f9b-aa29-b458751eb3c7",
+              "name": "On_Road_Price",
+              "value": "={{ $json.On_Road_Price }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        144
+      ],
+      "id": "8605cf07-659b-40fc-b6ae-72a537d9125e",
+      "name": "Data Cleaning & Typing"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "table": {
+          "__rl": true,
+          "value": "sales_data",
+          "mode": "list",
+          "cachedResultName": "sales_data"
+        },
+        "columnToMatchOn": "Order_ID",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        768,
+        144
+      ],
+      "id": "b75cf171-daba-472a-839b-24f8a4bb15f0",
+      "name": "Sync to MySQL Warehouse",
+      "credentials": {
+        "mySql": {
+          "id": "5QsgS2sKrZ8bw19M",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Shehab Elbatanouny, a Senior Business Analyst at Honda. Your job is to analyze daily sales data and write a professional, executive-level daily briefing email to the Regional Manager.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Here is the sales data for today:\\n- Total Revenue: USD {{$json.sum_On_Road_Price}}\\n- Total Motorcycles Sold: {{$json.count_Order_ID}} units.\\n\\nPlease write a short, insightful email (max 3 paragraphs). Acknowledge the numbers, provide a brief positive perspective on this volume, and suggest one strategic action for the team tomorrow to maintain momentum. Use a professional corporate tone and make sure to sign off the email with your name and title.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        784,
+        416
+      ],
+      "id": "eb016e16-2d4a-44ac-964d-6d75038aea91",
+      "name": "AI Business Analyst (Llama 3.3)",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "shehapsherif11@gmail.com",
+        "toEmail": "shehapsherif11@gmail.com",
+        "subject": "Daily AI Insights: Honda Sales Briefing",
+        "emailFormat": "text",
+        "text": "={{ $json.choices[0].message.content }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        992,
+        416
+      ],
+      "id": "66f971f3-94e6-489a-9d43-8b1df31ddcbe",
+      "name": "Send AI-Powered Executive Report",
+      "webhookId": "382ea727-d8c8-4e4f-bd8d-7b9eb7030f84",
+      "credentials": {
+        "smtp": {
+          "id": "duk6Tdw1vgQKWlmv",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Sales Email": {
+      "main": [
+        [
+          {
+            "node": "Parse CSV Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse CSV Data": {
+      "main": [
+        [
+          {
+            "node": "Data Cleaning & Typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Audit Log": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate Daily Metrics": {
+      "main": [
+        [
+          {
+            "node": "AI Business Analyst (Llama 3.3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Cleaning & Typing": {
+      "main": [
+        [
+          {
+            "node": "Sync to MySQL Warehouse",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate Daily Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync to MySQL Warehouse": {
+      "main": [
+        [
+          {
+            "node": "Write Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Business Analyst (Llama 3.3)": {
+      "main": [
+        [
+          {
+            "node": "Send AI-Powered Executive Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d615efa0-366e-4234-b186-f48087499dfd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33d942ba7073ca8db605ef5f3e16a2b6a189b01ec3f966238ca51f47588302ea"
+  },
+  "id": "rjxaY5UuPwUrT2Et",
+  "tags": []
+}
