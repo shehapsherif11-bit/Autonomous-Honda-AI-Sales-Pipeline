@@ -1,41 +1,186 @@
 # 🏎️ Honda Sales Sentinel: Autonomous AI-Driven Pipeline & BI
-### [🔴 **Click Here to View Project Files**](https://app.powerbi.com/view?r=eyJrIjoiYWQ4MDgwYmYtMmUzOC00YzJjLThiMWYtNDY4OThlOWExOTgxIiwidCI6ImNjMmRjNWY0LWMwYzgtNGNiZS05NGUzLWRiMDNmYjEwYTVhMiJ9)
+
+### 🔴 Live Dashboard
+https://app.powerbi.com/view?r=eyJrIjoiYWQ4MDgwYmYtMmUzOC00YzJjLThiMWYtNDY4OThlOWExOTgxIiwidCI6ImNjMmRjNWY0LWMwYzgtNGNiZS05NGUzLWRiMDNmYjEwYTVhMiJ9
+
 ---
-### 📌 Project Overview
-This project transforms traditional sales reporting into an **Autonomous Intelligence System**. Instead of manual data entry, I engineered a "Zero-Touch" pipeline that monitors incoming emails, processes raw data, and uses **Generative AI (LLMs)** to deliver executive briefings directly to management.
-The goal was to eliminate the 24-hour delay in sales reporting and provide **Immediate Strategic Insights** using an agentic workflow.
+
+## 📌 1. Business Problem
+
+Traditional sales reporting is slow and manual.
+
+- Managers wait **24+ hours** to see performance  
+- Data comes from emails and CSVs → error-prone  
+- No fast way to act on underperforming dealers  
+
+**Impact:**  
+Delayed decisions and missed revenue opportunities.
+
 ---
-### 🚀 Key Features & Workflow Architecture
-* **🤖 Agentic AI Reporting:** Integrated **Llama 3.3 (70B)** via **Groq API** to act as a Senior Business Analyst, summarizing 1,500+ daily transactions into a concise executive email.
-* **📩 Intelligent Ingestion:** Built a **Gmail Trigger** with advanced filtering (`has:attachment filename:csv`) to automatically capture sales data without human intervention.
-* **⚙️ Automated ETL & Persistence:** Developed an **n8n pipeline** that cleans raw CSV data and syncs it to a **MySQL Warehouse**, ensuring a single source of truth.
-* **📊 Live BI Integration:** Connected **Power BI** directly to the SQL database using a **Star Schema** model, allowing for real-time "Refresh" of all sales KPIs.
-* **✉️ Dynamic Actionable Reporting (One-Click Emails):** Engineered a highly customized DAX measure using the `mailto:` URL scheme to bridge the gap between data insights and immediate action.
-  * **Context-Aware Generation:** Clicking the email icon in the matrix dynamically captures the specific row's context (Dealer Name, Financial Metrics, Target Attainment).
-  * **Automated Email Structuring:** The DAX formula automatically formats a professional, ready-to-send performance summary — using URL encoding for line breaks and text formatting — directly into the manager's default email client (e.g., Outlook).
-  * **Instant Feedback Loop:** Empowers management to send targeted, data-driven feedback without ever leaving the dashboard or manually typing a single number.
-* **🛡️ System Audit Logging:** Implemented an automated **Execution Log** that tracks every pipeline run, ensuring 100% system reliability and transparency.
+
+## 🎯 2. Why I Built This
+
+I wanted to simulate a real-world business scenario where:
+
+- Data arrives in messy formats (emails + attachments)  
+- Decision-makers need instant insights  
+- Reporting should be automated, not manual  
+
+**Goal:**  
+Build a zero-touch system that converts raw data into actionable insights within minutes.
+
 ---
-### 🛠️ Technical Stack (Skills Used)
-* **n8n (Orchestration):** Engineered the entire workflow logic, handling binary files, JSON transformations, and multi-path branching.
-* **MySQL:** Designed the relational schema to store historical sales data and process logs.
-* **Generative AI (Groq/Llama 3.3):** Applied **Prompt Engineering** to extract business insights and automate professional communication.
-* **Power BI:** Built a high-fidelity interactive dashboard focused on Honda's sales performance.
-* **DAX & Data Modeling:** Created measures for `Gross Profit`, `Net Sales`, and `Quantity Sold` with a dynamic **Calendar Dimension** for time-series analysis. Engineered advanced `mailto:` URL measures to enable one-click, context-aware email generation directly from the dashboard.
+
+## 📊 3. Data Source
+
+This is a simulated dataset designed to reflect real automotive sales:
+
+- ~1,500 daily transactions  
+- Dealer-level performance  
+- Sales, quantity, and profit metrics  
+
+**Data Format:**
+- CSV files sent via email (to mimic real operations)
+
+📂 Check `/04_Sample_Data` for example input.
+
 ---
-### 📷 System Preview
-**1. The Automation Engine (n8n Workflow)**
-![n8n Workflow](Documentation/n8n_workflow.png)
-**2. Executive Insights (AI-Generated Report)**
-![AI Email](Documentation/1.png)
-**3. Sales Dashboard (Power BI)**
-![Power BI](Documentation/2.png)
+
+## ⚙️ 4. System Architecture
+
+1. **Email Trigger (Gmail)**
+   - Filters: `has:attachment filename:csv`
+
+2. **n8n Workflow**
+   - Extract CSV  
+   - Clean & transform data  
+   - Load into database  
+   - Trigger AI summary  
+
+3. **MySQL Warehouse**
+   - Stores sales data and audit logs  
+
+4. **AI Layer (Groq + Llama 3.3)**
+   - Converts raw data into executive summaries  
+
+5. **Power BI Dashboard**
+   - Real-time KPIs  
+   - Dealer performance tracking  
+   - One-click email actions  
+
 ---
-### 📥 Project Structure & Usage
-This repository is organized for easy replication:
-1. **📂 01_Workflow_JSON:** Contains the `honda_pipeline.json` file. You can import this directly into **n8n**.
-2. **📂 02_Database:** Includes the SQL scripts to recreate the `sales_data` and `audit_log` tables.
-3. **📂 03_Dashboard:** Download the `Honda_Sales.pbix` to explore the live visualizations.
-4. **📂 04_Sample_Data:** The raw CSV file used for testing the pipeline.
+
+## 🚀 5. Key Features
+
+### 🤖 Autonomous AI Reporting
+- AI generates daily executive summaries automatically  
+- Eliminates manual analysis  
+
+### 📩 Zero-Touch Data Pipeline
+- Fully automated ingestion from email to database  
+
+### 📊 Real-Time BI
+- Direct connection to MySQL  
+- Instant KPI refresh  
+
+### ✉️ One-Click Action (Unique Feature)
+- Generate ready-to-send emails directly from dashboard  
+- Context-aware (dealer, metrics, performance)  
+- No manual typing required  
+
+### 🛡️ Audit Logging
+- Tracks every pipeline execution  
+- Ensures reliability and transparency  
+
 ---
-*Developed by **Shehab El-Batanouny** | Data Analysis & BI Developer*
+
+## 🛠️ 6. Tech Stack
+
+- **n8n** → Workflow orchestration  
+- **MySQL** → Data warehouse  
+- **Groq API (Llama 3.3)** → AI-generated insights  
+- **Power BI** → Data visualization  
+- **DAX** → KPIs + dynamic email generation  
+
+---
+
+## ▶️ 7. How to Run This Project
+
+### Step 1: Setup Database
+- Navigate to `/02_Database`
+- Run SQL scripts to create:
+  - `sales_data`
+  - `audit_log`
+
+---
+
+### Step 2: Setup n8n
+- Import workflow:
+  ```
+  /01_Workflow_JSON/honda_pipeline.json
+  ```
+- Configure:
+  - Gmail credentials  
+  - MySQL connection  
+  - Groq API key  
+
+---
+
+### Step 3: Test the Pipeline
+- Send an email with a CSV attachment  
+  (use sample from `/04_Sample_Data`)
+
+**Expected Output:**
+- Data inserted into MySQL  
+- AI summary generated  
+- Execution logged  
+
+---
+
+### Step 4: Open Dashboard
+- Open:
+  ```
+  /03_Dashboard/Honda_Sales.pbix
+  ```
+- Connect to your MySQL database  
+- Click **Refresh**
+
+---
+
+## 📈 8. Expected Results
+
+- Clean, structured sales data in MySQL  
+- Automated executive summaries  
+- Interactive dashboard showing:
+  - Revenue  
+  - Profit  
+  - Dealer performance  
+
+---
+
+## 📷 9. System Preview
+
+**n8n Workflow**  
+![n8n](Documentation/n8n_workflow.png)
+
+**AI-Generated Email**  
+![AI](Documentation/1.png)
+
+**Power BI Dashboard**  
+![BI](Documentation/2.png)
+
+---
+
+## 🧠 10. What This Project Demonstrates
+
+- Building end-to-end data pipelines  
+- Automating business workflows  
+- Applying AI in real business scenarios  
+- Converting raw data into actionable decisions  
+
+---
+
+## 👤 Author
+
+**Shehab El-Batanouny**  
+Data Analyst | BI Developer  
